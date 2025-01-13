@@ -1,1 +1,324 @@
+install.packages("moments")
+install.packages("tseries")
+install.packages("zoo")
+install.packages("urca")
+install.packages("vars")
+library(ggplot2)
+library(gridExtra)
+library(babynames)
+library(dplyr)
 
+library(moments)
+library(tseries)
+library(zoo)
+library(urca)
+library(vars)
+
+require(moments)
+require(tseries)
+require(zoo)
+require(urca)
+require(vars)
+
+#chamando as séries temporais#
+Etanol=plot.ts(producao.etanolAnidro.m3_2012_2020$Etanol_Anidro)
+Etanol_serie=ts(Etanol$etanol, start = c(2012), end = c(2020,12), frequency = 12)
+Etanol_serie
+plot(Etanol_serie)
+
+
+Derivados_1 <- producao.derivados.m3_dados$Producao[25:132]  #cortando os dados a partir (jan/12)
+Derivados_serie=ts(Derivados_1, start = c(2012), end = c(2020,12), frequency = 12)
+Derivados_serie
+plot(Derivados_serie)
+
+Petroleo_1 <- producao.petroleo.m3_dados$Producao[25:132] #cortando os dados a partir (jan/12)
+Petroleo_serie=ts(Petroleo_1, start = c(2012), end = c(2020,12), frequency = 12)
+Petroleo_serie
+plot(Petroleo_serie)
+
+Clima_1 <- Series_temperaturas_resumo$Temperatura_Media[25:132] #cortando os dados a partir (jan/12)
+
+
+
+Centro_Oeste_precipitacao=ts(PPM_CO$Precipitacao, start = c(2012), end = c(2020,12), frequency = 12)
+Centro_Oeste_precipitacao
+plot(Centro_Oeste_precipitacao)
+z<-"precipitação"
+Centro_Oeste_precipitacao
+
+sudeste_precipitacao=ts(PPM_SU$ppm, start = c(2012), end = c(2020,12), frequency = 12)
+sudeste_precipitacao
+plot(sudeste_precipitacao)
+z<-"precipitação"
+sudeste_precipitacao
+
+sul_precipitacao=ts(PPM_SUL$ppm, start = c(2012), end = c(2020,12), frequency = 12)
+sul_precipitacao
+plot(sul_precipitacao)
+z<-"precipitação"
+sul_precipitacao
+
+
+#Editando os gráficos precipitações
+dados3 <- read_excel("C:Arquivo.xlsx")
+
+n <- data.frame(x=c(dados3$data),y=c(PPT_Centro_Oeste_serie_Adj),z=c(PPT_sudeste_serie_Adj),k=c(PPT_sul_serie_Adj))
+n
+                
+dados4 <- ggplot(n, aes(x = n$x, y = n$y, color = continent)) +
+  geom_line(aes(colour="Centro-Oeste"), shape=1) + 
+  stat_function(fun = n$y, geom = "line", aes(colour = "Centro-Oeste")) +
+  geom_line(aes(x=n$x, y=n$z, colour="Sudeste"), shape=2) +
+  stat_function(fun = n$z, geom = "line", aes(colour="Sudeste")) +
+  geom_line(aes(x=n$x, y=n$k, colour="Sul"), shape=3) +
+  stat_function(fun = n$k, geom = "line", aes(colour="Sul")) +
+  theme_minimal()+
+  labs( title = "Precipitações (2012-2020)",
+        x = "Anos",
+        y = "PPM",
+        colour = "Precipitações")
+dados4
+                    
+
+Geracao_1 <- Geracao_de_Energia_renovavel_GWh_mensal_2010_2020$Producao[25:132] #cortando os dados a partir (jan/12)
+Geracao_serie=ts(Geracao_1, start = c(2012), end = c(2020,12), frequency = 12)
+Geracao_serie
+plot(Geracao_serie)
+
+Queimadas_1 <- Queimadas_area_km2_biomas$Area[25:132] #cortando os dados a partir (jan/12)
+Queimadas_serie=ts(Queimadas_1, start = c(2012), end = c(2020,12), frequency = 12)
+Queimadas_serie
+plot(Queimadas_serie)
+
+GasNat_1 <- producao.gas.natural.m3_dados$Gas_Nat[25:132] #cortando os dados a partir (jan/12)
+GasNat_serie=ts(GasNat_1, start = c(2012), end = c(2020,12), frequency = 12)
+GasNat_serie
+plot(GasNat_serie)
+
+Graos <- producao_graos_jan10_dez20$Producao.ton.[25:133] #cortando os dados a partir (jan/12)
+Graos_serie=ts(dados2$grao, start = c(2012), end = c(2020,12), frequency = 12)
+Graos_serie
+plot(Graos_serie)
+
+PIB <- PIB_resumo$V2[25:133] #cortando os dados a partir (jan/12)
+PIB_serie=ts(PIB, start = c(2012), end = c(2020,12), frequency = 12)
+PIB_serie
+plot(PIB_serie)
+
+Biodiesel <- producao.biodiesel.m3_2010_2020$Producao[25:133] #cortando os dados a partir (jan/12)
+Biodiesel_serie=ts(Biodiesel, start = c(2012), end = c(2020,12), frequency = 12)
+Biodiesel_serie
+plot(Biodiesel_serie)
+
+"Testes de Estacionariedade e Diferenciações"
+      
+        "\\Geracao Energia Renovavel em GWh"
+  summary(ur.df(Geracao_serie,type="trend",lags = 12, selectlags="BIC"))
+  summary(ur.df(Geracao_serie,type="drift",lags = 12, selectlags="BIC"))
+  summary(ur.df(Geracao_serie,type="none",lags = 12, selectlags="BIC"))
+  diff1_Geracao<- diff(Geracao_serie)
+    diff1_Geracao
+    plot(diff1_Geracao)
+  summary(ur.df(diff1_Geracao,type="trend",lags = 12, selectlags="BIC"))
+  summary(ur.df(diff1_Geracao,type="drift",lags = 12, selectlags="BIC"))
+  summary(ur.df(diff1_Geracao,type="none",lags = 12, selectlags="BIC"))
+    diff2_Geracao<- diff(diff1_Geracao)
+      diff2_Geracao
+      plot(diff2_Geracao)
+      
+        "FAC e Facp"
+  fac <- acf (diff1_Geracao, lag.max=12)
+    fac
+
+  facp <- pacf (diff1_Geracao, lag.max=12)
+    facp
+
+        "\\PIB Brasileiro em Milhões R$"
+  summary(ur.df(PIB_serie,type="trend",lags = 12, selectlags="BIC"))
+  summary(ur.df(PIB_serie,type="drift",lags = 12, selectlags="BIC"))
+  summary(ur.df(PIB_serie,type="none",lags = 12, selectlags="BIC"))
+    diff1_PIB<- diff(PIB_serie)
+    diff1_PIB
+  plot(diff1_PIB)
+  summary(ur.df(diff1_PIB,type="trend",lags = 12, selectlags="BIC"))
+  summary(ur.df(diff1_PIB,type="drift",lags = 12, selectlags="BIC"))
+  summary(ur.df(diff1_PIB,type="none",lags = 12, selectlags="BIC"))
+    diff2_PIB<- diff(diff1_PIB)
+      diff2_PIB
+      plot(diff2_PIB)
+  
+        "FAC e Facp"
+  fac_pib <- acf (diff1_PIB, lag.max=12)
+    fac_pib
+
+  facp_pib <- pacf (diff1_PIB, lag.max=12)
+    facp_pib
+    
+          "\\Produção de Biodiesel em m3"
+    summary(ur.df(Biodiesel_serie,type="trend",lags = 12, selectlags="BIC"))
+    summary(ur.df(Biodiesel_serie,type="drift",lags = 12, selectlags="BIC"))
+    summary(ur.df(Biodiesel_serie,type="none",lags = 12, selectlags="BIC"))
+      diff1_Biodiesel<- diff(Biodiesel_serie)
+      diff1_Biodiesel
+      plot(diff1_Biodiesel)
+    summary(ur.df(diff1_Biodiesel,type="trend",lags = 12, selectlags="BIC"))
+    summary(ur.df(diff1_Biodiesel,type="drift",lags = 12, selectlags="BIC"))
+    summary(ur.df(diff1_Biodiesel,type="none",lags = 12, selectlags="BIC"))
+      diff2_Biodiesel<- diff(diff1_Biodiesel)
+      diff2_Biodiesel
+        plot(diff2_Biodiesel)
+    
+           "FAC e Facp"
+      fac_biodiesel <- acf (diff1_Biodiesel, lag.max=12)
+        fac_biodiesel
+    
+      facp_biodiesel <- pacf (diff1_Biodiesel, lag.max=12)
+        facp_biodiesel
+        
+        "\\Produção de Grãos em ton"
+    summary(ur.df(Graos_serie,type="trend",lags = 12, selectlags="BIC"))
+    summary(ur.df(Graos_serie,type="drift",lags = 12, selectlags="BIC"))
+    summary(ur.df(Graos_serie,type="none",lags = 12, selectlags="BIC"))
+      diff1_Graos<- diff(Graos_serie)
+      diff1_Graos
+      plot(diff1_Graos)
+    summary(ur.df(diff1_Graos,type="trend",lags = 12, selectlags="BIC"))
+    summary(ur.df(diff1_Graos,type="drift",lags = 12, selectlags="BIC"))
+    summary(ur.df(diff1_Graos,type="none",lags = 12, selectlags="BIC"))
+      diff2_Graos<- diff(diff1_Graos)
+      diff2_Graos
+        plot(diff2_Graos)    
+    
+        "FAC e Facp"
+    fac_Graos <- acf (diff1_Graos, lag.max=12)
+      fac_Graos
+        
+    facp_Graos <- pacf (diff1_Graos, lag.max=12)
+    facp_Graos
+      
+          "\\Produção de Derivados em m3"
+    summary(ur.df(Derivados_serie,type="trend",lags = 12, selectlags="BIC"))
+    summary(ur.df(Derivados_serie,type="drift",lags = 12, selectlags="BIC"))
+    summary(ur.df(Derivados_serie,type="none",lags = 12, selectlags="BIC"))
+      diff1_Derivados<- diff(Derivados_serie)
+      diff1_Derivados
+      plot(diff1_Derivados)
+    summary(ur.df(diff1_Derivados,type="trend",lags = 12, selectlags="BIC"))
+    summary(ur.df(diff1_Derivados,type="drift",lags = 12, selectlags="BIC"))
+    summary(ur.df(diff1_Derivados,type="none",lags = 12, selectlags="BIC"))
+    diff2_Derivados<- diff(diff1_Derivados)
+    diff2_Derivados
+    plot(diff2_Derivados)  
+    
+        "FAC e Facp"
+    fac_derivados <- acf (diff1_Derivados, lag.max=12)
+      fac_derivados
+      
+    facp_derivados <- pacf (diff1_Derivados, lag.max=12)
+      facp_derivados
+      
+          "\\Produção de Etanol Anidro em m3"
+    summary(ur.df(Etanol_serie,type="trend",lags = 12, selectlags="BIC"))
+    summary(ur.df(Etanol_serie,type="drift",lags = 12, selectlags="BIC"))
+    summary(ur.df(Etanol_serie,type="none",lags = 12, selectlags="BIC"))
+      diff1_Etanol<- diff(Etanol_serie)
+      diff1_Etanol
+      plot(diff1_Etanol)
+    summary(ur.df(diff1_Etanol,type="trend",lags = 12, selectlags="BIC"))
+    summary(ur.df(diff1_Etanol,type="drift",lags = 12, selectlags="BIC"))
+    summary(ur.df(diff1_Etanol,type="none",lags = 12, selectlags="BIC"))
+      diff2_Etanol<- diff(diff1_Etanol)
+        diff2_Etanol
+        plot(diff2_Etanol)  
+    
+          "FAC e Facp"
+    fac_Etanol <- acf (diff1_Etanol, lag.max=12)
+      fac_Etanol
+      
+    facp_Etanol <- pacf (diff1_Etanol, lag.max=12)
+      facp_Etanol
+      
+        "\\Produção de Gas Natural em m3"
+    summary(ur.df(GasNat_serie,type="trend",lags = 12, selectlags="BIC"))
+    summary(ur.df(GasNat_serie,type="drift",lags = 12, selectlags="BIC"))
+    summary(ur.df(GasNat_serie,type="none",lags = 12, selectlags="BIC"))
+      diff1_GasNat<- diff(GasNat_serie)
+      diff1_GasNat
+      plot(diff1_GasNat)
+    summary(ur.df(diff1_GasNat,type="trend",lags = 12, selectlags="BIC"))
+    summary(ur.df(diff1_GasNat,type="drift",lags = 12, selectlags="BIC"))
+    summary(ur.df(diff1_GasNat,type="none",lags = 12, selectlags="BIC"))
+      diff2_GasNat<- diff(diff1_GasNat)
+        diff2_GasNat
+        plot(diff2_GasNat)  
+    
+          "FAC e Facp"
+    fac_gasNat <- acf (diff1_GasNat, lag.max=12)
+      fac_gasNat
+      
+    facp_gasNat <- pacf (diff1_GasNat, lag.max=12)
+      facp_gasNat
+      
+        "\\Produção de Petroleo em m3"
+    summary(ur.df(Petroleo_serie,type="trend",lags = 12, selectlags="BIC"))
+    summary(ur.df(Petroleo_serie,type="drift",lags = 12, selectlags="BIC"))
+    summary(ur.df(Petroleo_serie,type="none",lags = 12, selectlags="BIC"))
+      diff1_Petroleo<- diff(Petroleo_serie)
+      diff1_Petroleo
+      plot(diff1_Petroleo)
+    summary(ur.df(diff1_Petroleo,type="trend",lags = 12, selectlags="BIC"))
+    summary(ur.df(diff1_Petroleo,type="drift",lags = 12, selectlags="BIC"))
+    summary(ur.df(diff1_Petroleo,type="none",lags = 12, selectlags="BIC"))
+      diff2_Petroleo<- diff(diff1_Petroleo)
+      diff2_Petroleo
+        plot(diff2_Petroleo)
+    
+      "FAC e Facp"
+    fac_petroleo <- acf (diff1_Petroleo, lag.max=12)
+      fac_petroleo
+      
+    facp_petroleo <- pacf (diff1_Petroleo, lag.max=12)
+      facp_petroleo
+    
+      "\\Produção de Queimadas em KM^2"
+    summary(ur.df(Queimadas_serie,type="trend",lags = 12, selectlags="BIC"))
+    summary(ur.df(Queimadas_serie,type="drift",lags = 12, selectlags="BIC"))
+    summary(ur.df(Queimadas_serie,type="none",lags = 12, selectlags="BIC"))
+      diff1_Queimadas<- diff(Queimadas_serie)
+      diff1_Queimadas
+      plot(diff1_Queimadas)
+    summary(ur.df(diff1_Queimadas,type="trend",lags = 12, selectlags="BIC"))
+    summary(ur.df(diff1_Queimadas,type="drift",lags = 12, selectlags="BIC"))
+    summary(ur.df(diff1_Queimadas,type="none",lags = 12, selectlags="BIC"))
+      diff2_Queimadas<- diff(diff1_Queimadas)
+      diff2_Queimadas
+      plot(diff2_Queimadas)  
+    
+      "FAC e Facp"
+    fac <- acf (diff1_Queimadas, lag.max=12)
+      fac
+      
+    facp <- pacf (diff1_Queimadas, lag.max=12)
+      facp
+      
+      "\\Temperatura média brasileira em ºC"
+    summary(ur.df(Clima_Serie,type="trend",lags = 12, selectlags="BIC"))
+    summary(ur.df(Clima_Serie,type="drift",lags = 12, selectlags="BIC"))
+    summary(ur.df(Clima_Serie,type="none",lags = 12, selectlags="BIC"))
+      diff1_Temperatura<- diff(Clima_Serie)
+      diff1_Temperatura
+      plot(diff1_Temperatura)
+    summary(ur.df(diff1_Temperatura,type="trend",lags = 12, selectlags="BIC"))
+    summary(ur.df(diff1_Temperatura,type="drift",lags = 12, selectlags="BIC"))
+    summary(ur.df(diff1_Temperatura,type="none",lags = 12, selectlags="BIC"))
+      diff2_Temperatura<- diff(diff1_Temperatura)
+        diff2_Temperatura
+        plot(diff2_Temperatura)  
+    
+      "FAC e Facp"
+    fac_temp <- acf (diff1_Temperatura, lag.max=12)
+      fac_temp
+      
+    facp_temp <- pacf (diff1_Temperatura, lag.max=12)
+      facp_temp 
